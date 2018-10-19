@@ -10,8 +10,12 @@ const webpackDevMiddleware = require('webpack-dev-middleware')
 const webpackHotMiddleware = require('webpack-hot-middleware')
 const webpackConfig = require('./webpack.config')
 
+
+
 const DEV_SSL = process.env['DEV_SSL']
+
 const SERVER_PORT = process.env.port || (DEV_SSL ? 443 : 80)
+
 const compiler = webpack(webpackConfig)
 const devMiddleware = webpackDevMiddleware(compiler, {
   stats: {

@@ -1,55 +1,53 @@
 'use strict'
 const webpack = require('webpack')
 const path = require('path')
-const ROOT_PATH = path.join(__dirname, './')
+const ROOT_PATH = path.join(__dirname, '../')
 const HtmlWebpackTplPlugin = require('html-webpack-template-plugin')
 const htmlWebpackPlugin = require('html-webpack-plugin')
 const IS_DEV = process.env.npm_lifecycle_event === 'dev'
 
 const getVueLoaderOptions = (prod) => {
-    var baseOptions = {
-      autoprefixer: false,
-      minimize: true,
-      cssModules: {
-        localIdentName: `${IS_DEV ? '[name]-[local]_' : '[name]-'}[hash:base64:5]`,
-        camelCase: true,
-      },
-      loaders: {
-        js: 'babel-loader',
-        stylus: 'vue-style-loader!css-loader!stylus-loader',
-      },
-      preserveWhitespace: false,
-    }
-    return baseOptions
-  }
-const ENTRY_PAGE = [
-    {
-      chunkName: 'page1',
-      src: './src/page1',
-      chunks: []
-    }, {
-      chunkName: 'page2',
-      src: './src/page2',
-      chunks: []
-    }
-  ]
-  const MINIFY_OPTION = {
-    removeComments: true,
-    collapseWhitespace: true,
-    minifyJS: true,
-    minifyCSS: true,
-    collapseBooleanAttributes: true
-  }
-  let entryHtmlPlugins = ENTRY_PAGE.map(item => new htmlWebpackPlugin({
-    filename: `${item.chunkName}/index.html`,
-    template: `${item.src}/config.yml`,
-    minify: MINIFY_OPTION,
-    chunks: ['common', item.chunkName].concat(item.chunks),
-    scriptAttribute: {
-      crossorigin: 'anonymous',
-      defer: true
+  const baseOptions = {
+    autoprefixer: false,
+    minimize: true,
+    cssModules: {
+      localIdentName: `${IS_DEV ? '[name]-[local]_' : '[name]-'}[hash:base64:5]`,
+      camelCase: true,
     },
-  }))
+    loaders: {
+      js: 'babel-loader',
+      stylus: 'vue-style-loader!css-loader!stylus-loader',
+    },
+    preserveWhitespace: false,
+  }
+  return baseOptions
+}
+const ENTRY_PAGE = [{
+  chunkName: 'page1',
+  src: './src/page1',
+  chunks: []
+}, {
+  chunkName: 'page2',
+  src: './src/page2',
+  chunks: []
+}]
+const MINIFY_OPTION = {
+  removeComments: true,
+  collapseWhitespace: true,
+  minifyJS: true,
+  minifyCSS: true,
+  collapseBooleanAttributes: true
+}
+let entryHtmlPlugins = ENTRY_PAGE.map(item => new htmlWebpackPlugin({
+  filename: `${item.chunkName}/index.html`,
+  template: `${item.src}/config.yml`,
+  minify: MINIFY_OPTION,
+  chunks: ['common', item.chunkName].concat(item.chunks),
+  scriptAttribute: {
+    crossorigin: 'anonymous',
+    defer: true
+  },
+}))
 let baseConfig = {
   entry: {
     vendor: ['./src/common/common.js'],
@@ -118,7 +116,9 @@ let baseConfig = {
           let result = ''
           value.forEach(item => {
             if (typeof item === 'string') {
-              item = { src: item, }
+              item = {
+                src: item,
+              }
             }
             if (item !== null && typeof item === 'object') {
               item.crossorigin = 'anonymous'
@@ -131,6 +131,21 @@ let baseConfig = {
           })
           return result
         }
+      },
+      filter: (moduleConfig, htmlPluginOption) => {
+        let viewConfig = {}
+        if (Array.isArray(moduleConfig)) {
+          let entryName = htmlPluginOption.filename.replace('/index.html', '')
+          moduleConfig.some(item => {
+            if (item.entry === entryName) {
+              viewConfig = item.template
+              return true
+            }
+          })
+        } else {
+          viewConfig = moduleConfig.template
+        }
+        return viewConfig
       },
     })
   ]),
