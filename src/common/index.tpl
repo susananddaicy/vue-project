@@ -13,4 +13,6 @@
   <div id="app">
   </div>
   {{/if}}
+
+  <script defer src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 </body>
